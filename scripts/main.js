@@ -23,7 +23,7 @@ window.onload = function(){
                                     { preload: preload, create: create, update: update });
 }
 
-var tank;
+var myTank;
 var wallGroup, enemyGroup, allyGroup;
 var preload = function(){
   TankOnline.game.load.image('tankDown', './images/tank_player1_down_c0_t1_s1.png');
@@ -52,15 +52,13 @@ var create = function(){
 
   TankOnline.bulletGroup = TankOnline.game.add.physicsGroup();
 
-  tank = new Tank(window.innerWidth/2, window.innerHeight/2, allyGroup);
-  for (var i = 0; i<1; i++){
-    new Tank(Math.random()*TankOnline.game.world.bounds.width,
-            Math.random()*TankOnline.game.world.bounds.height,
-            enemyGroup);
-;  }
+  myTank = new Tank(window.innerWidth/2, window.innerHeight/2, allyGroup);
+  enemyTank = new Tank(Math.random()*TankOnline.game.world.bounds.width,
+                      Math.random()*TankOnline.game.world.bounds.height,
+                      enemyGroup);
 
   TankOnline.game.world.setBounds(0,0,1500,800);
-  TankOnline.game.camera.follow(tank.sprite);
+  TankOnline.game.camera.follow(myTank.sprite);
 
   for(var i=0; i<TankOnline.map.length;i++){
     for(var j=0; j<TankOnline.map[i].length;j++){
@@ -81,7 +79,7 @@ var onBulletHitEnemy = function(bulletSprite, enemySprite){
 }
 
 var update = function(){
-  TankOnline.game.physics.arcade.collide(tank.sprite, wallGroup);//track collide wall and tank
+  TankOnline.game.physics.arcade.collide(myTank.sprite, wallGroup);//track collide wall and tank
   TankOnline.game.physics.arcade.overlap(TankOnline.bulletGroup,
                                         wallGroup,
                                         onBulletHitWall,
@@ -103,9 +101,18 @@ var update = function(){
   else if (TankOnline.keyboard.isDown(Phaser.KeyCode.DOWN)) direction.y = 1;
   else direction.y = 0;
 
-  tank.update(direction);
+  if(TankOnline.keyboard.isDown(Phaser.KeyCode.A)) enemyTank.direction.x = -1;
+  else if (TankOnline.keyboard.isDown(Phaser.KeyCode.D)) enemyTank.direction.x = 1;
+  else enemyTank.direction.x = 0;
+
+  if(TankOnline.keyboard.isDown(Phaser.KeyCode.W)) enemyTank.direction.y = -1;
+  else if (TankOnline.keyboard.isDown(Phaser.KeyCode.S)) enemyTank.direction.y = 1;
+  else enemyTank.direction.y = 0;
+
+  myTank.update(direction);
+  enemyTank.update(enemyTank.direction);
 
   if(TankOnline.keyboard.isDown(Phaser.KeyCode.SPACEBAR)){
-    tank.fire();
+    myTank.fire();
   }
 }
