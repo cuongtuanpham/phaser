@@ -23,7 +23,7 @@ window.onload = function(){
                                     { preload: preload, create: create, update: update });
 }
 
-var myTank;
+var myTank, enemyTank;
 var wallGroup, enemyGroup, allyGroup;
 var preload = function(){
   TankOnline.game.load.image('tankDown', './images/tank_player1_down_c0_t1_s1.png');
@@ -78,8 +78,14 @@ var onBulletHitEnemy = function(bulletSprite, enemySprite){
   bulletSprite.kill();
 }
 
+var onBulletHitAlly = function(bulletSprite, allySprite){
+  allySprite.damage(bulletSprite.bulletDamage);
+  bulletSprite.kill();
+}
+
 var update = function(){
   TankOnline.game.physics.arcade.collide(myTank.sprite, wallGroup);//track collide wall and tank
+  TankOnline.game.physics.arcade.collide(enemyTank.sprite, wallGroup);
   TankOnline.game.physics.arcade.overlap(TankOnline.bulletGroup,
                                         wallGroup,
                                         onBulletHitWall,
@@ -89,6 +95,11 @@ var update = function(){
   TankOnline.game.physics.arcade.overlap(TankOnline.bulletGroup,
                                         enemyGroup,
                                         onBulletHitEnemy,
+                                        null,
+                                        this);
+  TankOnline.game.physics.arcade.overlap(TankOnline.bulletGroup,
+                                        allyGroup,
+                                        onBulletHitAlly,
                                         null,
                                         this);
 
@@ -114,5 +125,8 @@ var update = function(){
 
   if(TankOnline.keyboard.isDown(Phaser.KeyCode.SPACEBAR)){
     myTank.fire();
+  }
+  if(TankOnline.keyboard.isDown(Phaser.KeyCode.SHIFT)){
+    enemyTank.fire();
   }
 }
